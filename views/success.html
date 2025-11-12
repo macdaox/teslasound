@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="支付成功，音效包已发送到您的邮箱。">
+  <title>感谢购买 · Tesla 锁车音效包</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link href="/public/styles.css" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8C%9F%3C/text%3E%3C/svg%3E">
+  <style></style>
+</head>
+<body>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-body p-4 text-center">
+            <h1 class="fw-bold mb-3">感谢购买！</h1>
+            <p class="lead">我们已将音效包发送到你的邮箱：</p>
+            <p id="email" class="h5 text-success"></p>
+            <p class="muted">如果 5 分钟内没有收到，请检查垃圾邮件或稍后重试。</p>
+            <a href="/" class="btn btn-outline-light mt-3">返回首页</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get('email') || '';
+    document.getElementById('email').textContent = email;
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
+
+

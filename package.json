@@ -1,0 +1,22 @@
+{
+  "name": "tesla-lock-sound",
+  "version": "1.0.0",
+  "description": "Minimal subscription site for Tesla lock sound pack using Node.js, Express, Stripe, and Nodemailer",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "NODE_ENV=development node server.js"
+  },
+  "dependencies": {
+    "compression": "^1.7.4",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.9.15",
+    "stripe": "^16.8.0"
+  }
+}
+
+

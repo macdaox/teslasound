@@ -1,0 +1,92 @@
+:root{
+	--bg: #ffffff;
+	--text: #111111;
+	--muted: #6b7280;
+	--border: #e5e7eb;
+	--card: #ffffff;
+	--brand: #171a20; /* Tesla-like black button */
+	--brandHover: #000000;
+}
+
+html, body{
+	background: var(--bg);
+	color: var(--text);
+}
+
+.muted{ color: var(--muted); }
+.border-secondary{ border-color: var(--border) !important; }
+.card{ background: var(--card); border: 1px solid var(--border); }
+
+.navbar{
+	background: rgba(255,255,255,0.8) !important;
+	backdrop-filter: blur(6px);
+	border-bottom: 1px solid var(--border);
+}
+
+.btn-primary{
+	background: var(--brand);
+	border-color: var(--brand);
+}
+.btn-primary:hover{
+	background: var(--brandHover);
+	border-color: var(--brandHover);
+}
+.btn-outline-light{
+	color: var(--text);
+	border-color: var(--text);
+}
+.btn-outline-light:hover{
+	background: var(--text);
+	color: #fff;
+}
+
+.link-light{ color: var(--text) !important; }
+.link-light:hover{ text-decoration: underline; }
+
+.accordion-button{
+	background: #fff;
+	color: var(--text);
+}
+.accordion-button:not(.collapsed){
+	background: #f5f5f5;
+	color: var(--text);
+	box-shadow: inset 0 -1px 0 var(--border);
+}
+.accordion-item{
+	background: #fff;
+	border: 1px solid var(--border);
+}
+
+.hero{
+	padding-top: 64px;
+	padding-bottom: 48px;
+	background-image: url('/public/assets/tesla.avif');
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	position: relative;
+}
+.hero::before{
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(255, 255, 255, 0.4);
+	z-index: 0;
+}
+.hero .container{
+	position: relative;
+	z-index: 1;
+}
+.feature-icon{
+	width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
+	border-radius: 8px; background: #f5f5f5; border: 1px solid var(--border);
+}
+
+.footer-muted{
+	color: var(--muted);
+}
+
+

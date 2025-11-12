@@ -1,0 +1,28 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn.lock
+package-lock.json
+
+# Env and secrets
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+
+# Build / cache
+.cache/
+dist/
+coverage/
+
+# Assets not for VCS
+public/assets/*.mp3
+public/assets/*.wav
+public/assets/*.zip
+
+
