@@ -81,20 +81,16 @@
       <div class="row g-3">
         <div class="col-12 col-md-4">
           <div class="card p-3 h-100">
-            <div class="d-flex align-items-center gap-2 mb-2"><div class="feature-icon">🎧</div><h5 class="m-0">即刻试听</h5></div>
+            <div class="d-flex align-items-center gap-2 mb-2"><div class="feature-icon"><img src="/public/assets/service-tesla.svg" alt="icon" width="24" height="24"></div><h5 class="m-0">即刻试听</h5></div>
             <p class="muted">下单前先听一听。我们提供数段示例，所听即所得。</p>
-            <audio controls preload="none" class="w-100">
-              <source src="/public/assets/sample1.mp3" type="audio/mpeg">
-            </audio>
+            <audio data-preview="labubu2.mp3" controls preload="none" class="w-100"></audio>
           </div>
         </div>
         <div class="col-12 col-md-4">
           <div class="card p-3 h-100">
-            <div class="d-flex align-items-center gap-2 mb-2"><div class="feature-icon">🎛️</div><h5 class="m-0">多风格可选</h5></div>
+            <div class="d-flex align-items-center gap-2 mb-2"><div class="feature-icon"><img src="/public/assets/service-tesla.svg" alt="icon" width="24" height="24"></div><h5 class="m-0">多风格可选</h5></div>
             <p class="muted">经典、科幻、极简三大方向，满足不同偏好与场景。</p>
-            <audio controls preload="none" class="w-100">
-              <source src="/public/assets/sample2.mp3" type="audio/mpeg">
-            </audio>
+            <audio data-preview="jiming.mp3" controls preload="none" class="w-100"></audio>
           </div>
         </div>
         <div class="col-12 col-md-4">
@@ -208,6 +204,18 @@
     </div>
   </footer>
   <script>document.getElementById('y').textContent = new Date().getFullYear()</script>
+  <script>
+    async function attachPreview(el){
+      const name = el.dataset.preview;
+      if(!name) return;
+      try{
+        const res = await fetch(`/api/preview-url?name=${encodeURIComponent(name)}`);
+        const data = await res.json();
+        if(data && data.url){ el.src = data.url; }
+      }catch(e){}
+    }
+    document.querySelectorAll('audio[data-preview]').forEach(attachPreview);
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -24,5 +24,6 @@ coverage/
 public/assets/*.mp3
 public/assets/*.wav
 public/assets/*.zip
+secure/
 
 

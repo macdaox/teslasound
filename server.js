@@ -5,6 +5,8 @@ import compression from "compression";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import crypto from "crypto";
+import fs from "fs";
 import subscribeRouter from "./routes/subscribe.js";
 import { sendWelcomeEmail } from "./services/mailer.js";
 
@@ -36,6 +38,48 @@ const viewsPath = path.join(__dirname, "views");
 const sendView = (res, filename) => {
 	res.sendFile(path.join(viewsPath, filename));
 };
+
+// -------- Secure preview token helpers --------
+const PREVIEW_SECRET = process.env.PREVIEW_SECRET || "dev_preview_secret";
+const DOMAIN = process.env.DOMAIN || `http://localhost:${PORT}`;
+const secureSamplesDir = path.join(__dirname, "secure", "samples");
+
+const SAMPLE_FILES = [
+	{ filename: "labubu1.mp3", labelEn: "Labubu Chirp", labelZh: "Labubu 锁车音 · 版本 1" },
+	{ filename: "labubu2.mp3", labelEn: "Labubu Pulse", labelZh: "Labubu 锁车音 · 版本 2" },
+	{ filename: "labubu3.mp3", labelEn: "Labubu Wave", labelZh: "Labubu 锁车音 · 版本 3" },
+	{ filename: "windows.mp3", labelEn: "Windows Chime", labelZh: "Windows 系统提示音" },
+	{ filename: "winopen.mp3", labelEn: "Windows Start", labelZh: "Windows 开机音" },
+	{ filename: "jiming.mp3", labelEn: "Morning Rooster", labelZh: "鸡鸣提示音" },
+];
+const ALLOWED_SAMPLE_NAMES = new Set(SAMPLE_FILES.map((item) => item.filename));
+
+function hmac(content) {
+	return Buffer.from(crypto.createHmac("sha256", PREVIEW_SECRET).update(content).digest("hex")).toString("base64url");
+}
+function signPreviewToken(filename, expiresAtMs) {
+	const payload = `${filename}.${expiresAtMs}`;
+	const sig = hmac(payload);
+	return Buffer.from(`${payload}.${sig}`).toString("base64url");
+}
+function verifyPreviewToken(token) {
+	try {
+		const raw = Buffer.from(token, "base64url").toString();
+		const parts = raw.split(".");
+		if (parts.length < 3) return null;
+		const sig = parts.pop();
+		const expStr = parts.pop();
+		const filename = parts.join(".");
+		if (!filename || !expStr || !sig) return null;
+		const expected = hmac(`${filename}.${expStr}`);
+		if (expected !== sig) return null;
+		const exp = Number(expStr);
+		if (Number.isNaN(exp) || Date.now() > exp) return null;
+		return { filename, exp };
+	} catch {
+		return null;
+	}
+}
 
 // Routes - default English
 app.get("/", (req, res) => {
@@ -85,6 +129,54 @@ app.get("/zh/sounds", (req, res) => sendView(res, "sounds.html"));
 app.get("/zh/install-guide", (req, res) => sendView(res, "install-guide.html"));
 app.get("/zh/privacy", (req, res) => sendView(res, "privacy.html"));
 app.get("/zh/refund-policy", (req, res) => sendView(res, "refund-policy.html"));
+
+// ---- API: signed preview url ----
+app.get("/api/preview-url", (req, res) => {
+	const name = (req.query.name || "").toString().trim();
+	if (!ALLOWED_SAMPLE_NAMES.has(name)) {
+		return res.status(400).json({ error: "invalid name" });
+	}
+	const expiresAt = Date.now() + 60 * 1000; // 1 minute
+	const token = signPreviewToken(name, expiresAt);
+	const url = `/preview/${name}?token=${encodeURIComponent(token)}`;
+	return res.json({ url, expiresAt });
+});
+
+app.get("/api/preview-list", (req, res) => {
+	return res.json({
+		samples: SAMPLE_FILES.map((item) => ({
+			filename: item.filename,
+			labelEn: item.labelEn,
+			labelZh: item.labelZh,
+		}))
+	});
+});
+
+// ---- Secure preview streaming ----
+app.get("/preview/:name", (req, res) => {
+	const token = (req.query.token || "").toString();
+	const verify = verifyPreviewToken(token);
+	if (!verify || verify.filename !== req.params.name) {
+		return res.status(401).send("Unauthorized");
+	}
+	// Same-origin / referer check
+	const referer = req.get("referer") || "";
+	if (referer && !referer.startsWith(DOMAIN)) {
+		return res.status(403).send("Forbidden");
+	}
+	const filePath = path.join(secureSamplesDir, verify.filename);
+	if (!fs.existsSync(filePath)) return res.status(404).send("Not Found");
+
+	res.setHeader("Content-Type", "audio/mpeg");
+	res.setHeader("Content-Disposition", "inline; filename=\"preview.mp3\"");
+	res.setHeader("Cache-Control", "no-store, max-age=0");
+	res.setHeader("Referrer-Policy", "no-referrer");
+	res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+
+	const stream = fs.createReadStream(filePath);
+	stream.on("error", () => res.status(500).end());
+	stream.pipe(res);
+});
 
 // Fallback 404
 app.use((req, res) => {
