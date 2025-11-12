@@ -3,30 +3,156 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Tesla 锁车音效安装教程。">
+  <meta name="description" content="一步步完成特斯拉锁车音效设置，适配 Model 3 / Y / S / X。">
   <title>安装教程 · Tesla 锁车音效包</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <link href="/public/styles.css" rel="stylesheet">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%93%84%3C/text%3E%3C/svg%3E">
-  <style> li { margin-bottom: 8px; } </style>
+  <link rel="icon" href="/public/assets/teslalogo.svg">
+  <style>
+    .guide-hero{background: #f7f8fa;}
+    .step-number{width: 36px;height: 36px;border-radius: 50%;background: var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;}
+    .timeline{position:relative;}
+  </style>
 </head>
 <body>
-  <div class="container py-5">
-    <h1 class="mb-4">安装教程</h1>
-    <div class="card p-4">
-      <ol>
-        <li>下载邮箱中的附件 <strong>tesla_sounds.zip</strong> 并解压。</li>
-        <li>将音效文件导入你的车载或手机 App（根据车型不同步骤略有差异）。</li>
-        <li>在 App 内设置“锁车音效”或相关提示音为你喜欢的音效。</li>
-        <li>上车测试锁车，确认音效已生效。</li>
-      </ol>
-      <p class="mt-3">如遇问题，回复邮件或联系我们的支持团队。</p>
+  <nav class="navbar navbar-expand-lg sticky-top bg-white border-bottom">
+    <div class="container">
+      <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="/"><img src="/public/assets/teslalogo.svg" alt="logo" width="20" height="20"> Tesla 锁车音效包</a>
+      <div class="d-flex">
+        <a href="/en/install-guide" class="btn btn-outline-light btn-sm">English</a>
+      </div>
     </div>
-    <div class="mt-4">
-      <a class="btn btn-outline-light" href="/">返回首页</a>
+  </nav>
+  <section class="guide-hero py-5">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-12 col-lg-6">
+          <p class="text-uppercase text-muted small mb-2">快速上手 · 约 5 分钟</p>
+          <h1 class="fw-bold mb-3">四步完成特斯拉锁车音效设置</h1>
+          <p class="muted">适配 Model 3、Model Y 及包含外放扬声器的车型。按照流程一步步操作，新手也能轻松替换锁车提示音。</p>
+          <div class="d-flex gap-3 mt-3 flex-wrap">
+            <div class="d-flex align-items-center gap-2">
+              <span class="feature-icon"><img src="/public/assets/service-tesla.svg" alt="icon" width="20" height="20"></span>
+              <span class="muted small">无需拆车 · 原厂接口</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="feature-icon"><img src="/public/assets/service-tesla.svg" alt="icon" width="20" height="20"></span>
+              <span class="muted small">一次设置 · 随时更换音效</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-5 offset-lg-1">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="fw-bold mb-3">准备事项</h5>
+              <ul class="muted mb-0">
+                <li>手机或电脑已下载 <strong>tesla_sounds.zip</strong> 并解压</li>
+                <li>车辆固件版本 ≥ 2021.32，且开启“Boombox / 声音自定义”功能</li>
+                <li>U 盘或 SD 卡（FAT32 / exFAT 格式），剩余空间 ≥ 200MB</li>
+                <li>车内外扬声器完好，音量未被静音</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container position-relative timeline">
+      <div class="row g-4">
+        <div class="col-12">
+          <h2 class="fw-bold mb-3">详细步骤</h2>
+        </div>
+        <div class="col-12">
+          <div class="d-flex gap-3">
+            <div class="step-number flex-shrink-0">1</div>
+            <div>
+              <h5 class="fw-semibold">解压音效并拷贝至移动存储</h5>
+              <p class="muted mb-2">将下载的 <code>tesla_sounds</code> 文件夹拷贝到 U 盘根目录（建议命名为 <code>Boombox</code>）。保持目录结构不变。</p>
+              <div class="small text-muted">提示：若使用原有 U 盘，请先备份 Dashcam/哨兵模式文件。</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="d-flex gap-3">
+            <div class="step-number flex-shrink-0">2</div>
+            <div>
+              <h5 class="fw-semibold">插入车辆 USB 端口并识别</h5>
+              <p class="muted mb-2">将 U 盘插入中控手套箱或中扶手 USB 接口。屏幕右上角出现 USB 图标后，进入中控菜单。</p>
+              <div class="small text-muted">如果未识别，可尝试重新插拔或在“安全与保安”中格式化为 TeslaCam。</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="d-flex gap-3">
+            <div class="step-number flex-shrink-0">3</div>
+            <div>
+              <h5 class="fw-semibold">进入 Boombox / 锁车音效设置</h5>
+              <p class="muted mb-2">车机路径：<strong>控制 > 娱乐 > Boombox（或 声音设置）</strong>。在“锁车音效”下选择“自定义”，浏览 U 盘文件。</p>
+              <div class="small text-muted">部分固件会显示“外部扬声器”选项，确保开关已启用。</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="d-flex gap-3">
+            <div class="step-number flex-shrink-0">4</div>
+            <div>
+              <h5 class="fw-semibold">试听 & 保存</h5>
+              <p class="muted mb-2">从目录中选择你喜欢的音效，点击“播放”试听，再确认保存。锁车一次验证是否生效。</p>
+              <div class="small text-muted">若音量过小，可在设置中微调音量或尝试其他音效。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-12 col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="fw-bold mb-3">常见问题</h5>
+              <dl class="mb-0">
+                <dt class="fw-semibold">问：看不到 Boombox 选项怎么办？</dt>
+                <dd class="muted mb-3">请确认车型年份、固件版本以及是否配备外放扬声器。老款车型可能不支持该功能。</dd>
+                <dt class="fw-semibold">问：音效播放卡顿 / 无声？</dt>
+                <dd class="muted mb-3">尝试使用 USB 3.0 U 盘；确保文件为 MP3/WAV；在车机中重新加载或重启车辆系统。</dd>
+                <dt class="fw-semibold">问：可以自定义音量吗？</dt>
+                <dd class="muted">部分固件支持在“外部扬声器”里调节音量，同时也可使用我们提供的不同音量版本。</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="fw-bold mb-3">进阶技巧</h5>
+              <ul class="muted mb-0">
+                <li>使用 <strong>Profile</strong> 驾驶员配置保存不同音效，实现“一键切换”。</li>
+                <li>配合哨兵模式音乐播放，实现更具沉浸感的泊车体验。</li>
+                <li>每周登录我们邮件推送，获取新音效并覆盖至 U 盘，即可完成更新。</li>
+                <li>若需要恢复原厂音效，直接在设置中选择“默认”即可。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="card p-4 text-center">
+        <h3 class="fw-bold mb-2">准备换个锁车音？</h3>
+        <p class="muted mb-3">回到首页挑选你喜欢的音效，支付成功立刻发送邮箱。</p>
+        <a href="/" class="btn btn-primary btn-lg">返回首页</a>
+      </div>
+    </div>
+  </section>
 </body>
 </html>
 

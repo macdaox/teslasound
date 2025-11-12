@@ -3,30 +3,156 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Installation guide for Tesla lock sounds.">
+  <meta name="description" content="Step-by-step Tesla lock sound installation for Model 3 / Y / S / X.">
   <title>Installation Guide · Tesla Lock Sound Pack</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <link href="/public/styles.css" rel="stylesheet">
   <link rel="icon" href="/public/assets/teslalogo.svg">
-  <style> li { margin-bottom: 8px; } </style>
+  <style>
+    .guide-hero{background:#f7f8fa;}
+    .step-number{width:36px;height:36px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;}
+    .timeline{position:relative;}
+  </style>
 </head>
 <body>
-  <div class="container py-5">
-    <h1 class="mb-4">Installation Guide</h1>
-    <div class="card p-4">
-      <ol>
-        <li>Download and unzip the attached <strong>tesla_sounds.zip</strong> in your email.</li>
-        <li>Import the sounds into your in-car system or companion app (steps vary).</li>
-        <li>Select your preferred sound as the “lock” sound in the app.</li>
-        <li>Test by locking the car to confirm it works.</li>
-      </ol>
-      <p class="mt-3">Need help? Reply to the email and we’ll assist you.</p>
+  <nav class="navbar navbar-expand-lg sticky-top bg-white border-bottom">
+    <div class="container">
+      <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="/en"><img src="/public/assets/teslalogo.svg" alt="logo" width="20" height="20"> Tesla Lock Sounds</a>
+      <div class="d-flex">
+        <a href="/zh/install-guide" class="btn btn-outline-light btn-sm">中文</a>
+      </div>
     </div>
-    <div class="mt-4">
-      <a class="btn btn-outline-light" href="/en">Back to Home</a>
+  </nav>
+  <section class="guide-hero py-5">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-12 col-lg-6">
+          <p class="text-uppercase text-muted small mb-2">Approx. 5 minutes</p>
+          <h1 class="fw-bold mb-3">4 steps to activate your custom lock chime</h1>
+          <p class="muted">Works with Model 3, Model Y and any Tesla equipped with the outside speaker. Follow along and replace the factory chime in minutes.</p>
+          <div class="d-flex gap-3 mt-3 flex-wrap">
+            <div class="d-flex align-items-center gap-2">
+              <span class="feature-icon"><img src="/public/assets/service-tesla.svg" alt="icon" width="20" height="20"></span>
+              <span class="muted small">No disassembly · Plug & play</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="feature-icon"><img src="/public/assets/service-tesla.svg" alt="icon" width="20" height="20"></span>
+              <span class="muted small">Swap sounds anytime</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-5 offset-lg-1">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="fw-bold mb-3">What you need</h5>
+              <ul class="muted mb-0">
+                <li><strong>tesla_sounds.zip</strong> downloaded and unzipped on phone / laptop</li>
+                <li>Vehicle firmware ≥ 2021.32 with Boombox / Custom Lock Sound available</li>
+                <li>USB drive or SD card (FAT32 / exFAT, ≥ 200MB free)</li>
+                <li>External speaker enabled and not muted</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container position-relative timeline">
+      <div class="row g-4">
+        <div class="col-12">
+          <h2 class="fw-bold mb-3">Step-by-step walkthrough</h2>
+        </div>
+        <div class="col-12">
+          <div class="d-flex gap-3">
+            <div class="step-number flex-shrink-0">1</div>
+            <div>
+              <h5 class="fw-semibold">Copy the sound pack to your drive</h5>
+              <p class="muted mb-2">Place the extracted <code>tesla_sounds</code> (recommended folder name: <code>Boombox</code>) in the root directory. Keep the folder structure unchanged.</p>
+              <div class="small text-muted">Tip: backup Dashcam / Sentry files before reusing an existing drive.</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="d-flex gap-3">
+            <div class="step-number flex-shrink-0">2</div>
+            <div>
+              <h5 class="fw-semibold">Insert the USB into the vehicle</h5>
+              <p class="muted mb-2">Use the glovebox or center console USB port. Wait for the USB icon to appear at the top of the screen.</p>
+              <div class="small text-muted">Not detected? Reseat the drive or format via Safety & Security > Format USB.</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="d-flex gap-3">
+            <div class="step-number flex-shrink-0">3</div>
+            <div>
+              <h5 class="fw-semibold">Open Boombox / Exterior sound menu</h5>
+              <p class="muted mb-2">Navigate to <strong>Controls &gt; Entertainment &gt; Boombox</strong> (or Sound > External speaker). Choose “Custom” and browse the USB drive.</p>
+              <div class="small text-muted">Ensure “Enable External Speaker” is toggled on if presented.</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="d-flex gap-3">
+            <div class="step-number flex-shrink-0">4</div>
+            <div>
+              <h5 class="fw-semibold">Preview & save</h5>
+              <p class="muted mb-2">Click to audition a sound, then confirm to apply. Lock the car once to verify the new chime.</p>
+              <div class="small text-muted">Adjust volume in the menu or choose another preset if volume is low.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-12 col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="fw-bold mb-3">FAQ</h5>
+              <dl class="mb-0">
+                <dt class="fw-semibold">Boombox isn’t showing up</dt>
+                <dd class="muted mb-3">Check your vehicle year, firmware version, and whether an external speaker is installed. Older models may not support the feature.</dd>
+                <dt class="fw-semibold">No sound or stuttering</dt>
+                <dd class="muted mb-3">Use a fast USB 3.0 drive, ensure the file format is MP3/WAV, and reboot the infotainment if needed.</dd>
+                <dt class="fw-semibold">Can I control volume?</dt>
+                <dd class="muted">Many builds expose volume in the external speaker settings. We also provide multiple gain levels in the pack.</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="fw-bold mb-3">Pro tips</h5>
+              <ul class="muted mb-0">
+                <li>Use driver Profiles to store different sound selections for each family member.</li>
+                <li>Combine with Sentry Mode audio for themed experiences.</li>
+                <li>Download future updates from our emails, overwrite the USB folder, and you’re done.</li>
+                <li>Need to revert? Simply choose “Default” in the menu.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="card p-4 text-center">
+        <h3 class="fw-bold mb-2">Ready for a new lock chime?</h3>
+        <p class="muted mb-3">Head back to the store to pick your favorite pack and receive it instantly via email.</p>
+        <a href="/en" class="btn btn-primary btn-lg">Back to Home</a>
+      </div>
+    </div>
+  </section>
 </body>
 </html>
 
