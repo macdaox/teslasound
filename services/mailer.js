@@ -5,7 +5,7 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import { createDownloadToken } from "../utils/downloadToken.js";
 import { logEmail, updateSubscription } from "./supabase.js";
-import { getZipFileSize, getDownloadUrl } from "./r2-storage.js";
+import { getDownloadUrl } from "./r2-storage.js";
 
 dotenv.config();
 
@@ -33,7 +33,6 @@ const transporter = nodemailer.createTransport({
 
 export async function sendWelcomeEmail(toEmail, subscriptionId = null) {
 	const templatePath = path.join(viewsDir, "email_template.html");
-	const attachmentPath = path.join(publicDir, "assets", "tesla_sounds.zip");
 
 	let html = "<p>Thanks for your purchase!</p>";
 	try {
@@ -45,67 +44,34 @@ export async function sendWelcomeEmail(toEmail, subscriptionId = null) {
 		// fallback to default html
 	}
 
-	// Check if attachment file exists and is valid
-	// Gmail limit is ~25MB, we use 20MB as safe threshold
-	const MAX_ATTACHMENT_SIZE = 20 * 1024 * 1024; // 20MB
+	// Always use download link (no attachments)
 	const downloadSecret = process.env.DOWNLOAD_SECRET || process.env.PREVIEW_SECRET || "dev_download_secret";
 	const downloadTtlMs = process.env.DOWNLOAD_TTL_MS || 24 * 60 * 60 * 1000;
 	const manualDownloadUrl = process.env.DOWNLOAD_URL; // Optional: pre-defined URL
-	const domain = (process.env.DOMAIN || "http://localhost:3000").replace(/\/$/, "");
 	
 	let attachments = [];
 	let downloadLink = null;
 	
-	// Try to get file size from storage or local file
-	const fileSize = await getZipFileSize();
-	
-	if (fileSize) {
-		if (fileSize > 1024 && fileSize <= MAX_ATTACHMENT_SIZE) {
-			// File is small enough to attach - try local file first
-			try {
-				const stats = await fs.stat(attachmentPath);
-				if (stats.size > 1024 && stats.size <= MAX_ATTACHMENT_SIZE) {
-					attachments.push({
-						filename: "tesla_sounds.zip",
-						path: attachmentPath,
-						contentType: "application/zip"
-					});
-				}
-			} catch (e) {
-				// Local file not available, will use download link
-			}
-		}
-		
-		// If file is too large or not attached, use download link
-		if (attachments.length === 0) {
-			if (fileSize > MAX_ATTACHMENT_SIZE) {
-				console.warn(`Attachment file too large (${(fileSize / 1024 / 1024).toFixed(2)}MB), using download link instead`);
-			}
-			
-			// Try to get download URL from storage or generate token
-			if (manualDownloadUrl) {
-				downloadLink = manualDownloadUrl;
-			} else {
-				downloadLink = await getDownloadUrl(toEmail, downloadSecret, downloadTtlMs);
-			}
-		}
+	// Always generate download link (no attachment check)
+	if (manualDownloadUrl) {
+		downloadLink = manualDownloadUrl;
 	} else {
-		console.warn("ZIP file not found in storage or local, sending email without attachment");
+		downloadLink = await getDownloadUrl(toEmail, downloadSecret, downloadTtlMs);
 	}
 	
-	// Force download link if configured
-	if (!downloadLink && process.env.FORCE_DOWNLOAD_LINK === "true" && downloadSecret) {
-		downloadLink = await getDownloadUrl(toEmail, downloadSecret, downloadTtlMs);
+	if (!downloadLink) {
+		console.warn("Failed to generate download link, sending email without download link");
 	}
 	
 	// If using download link, update HTML to include it
 	if (downloadLink) {
 		const hoursValid = Math.round(downloadTtlMs / (1000 * 60 * 60)) || 24;
-		const downloadBlock = `<p style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px;">
-				<strong>Download your sound pack:</strong><br>
-				<a href="${downloadLink}" style="color: #0066cc;">${downloadLink}</a><br>
-				<span style="font-size: 12px; color: #6b7280;">Link valid for ${hoursValid} hours (链接有效期 ${hoursValid} 小时)，请尽快下载保存。</span>
-			</p>`;
+		const downloadBlock = `<div style="margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px; border: 2px solid #171a20;">
+				<strong style="font-size: 16px; display: block; margin-bottom: 12px;">📦 Download Your Sound Pack:</strong>
+				<a href="${downloadLink}" style="display: inline-block; background: #171a20; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin-bottom: 8px;">Download Now →</a><br>
+				<a href="${downloadLink}" style="color: #0066cc; font-size: 12px; word-break: break-all; display: block; margin-top: 8px;">${downloadLink}</a>
+				<span style="font-size: 12px; color: #6b7280; display: block; margin-top: 8px;">Link valid for ${hoursValid} hours (链接有效期 ${hoursValid} 小时)，请尽快下载保存。</span>
+			</div>`;
 		if (/<\/body>/i.test(html)) {
 			html = html.replace(/<\/body>/i, `${downloadBlock}</body>`);
 		} else {
