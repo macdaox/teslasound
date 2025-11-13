@@ -36,6 +36,9 @@ export async function sendWelcomeEmail(toEmail) {
 	let html = "<p>Thanks for your purchase!</p>";
 	try {
 		html = await fs.readFile(templatePath, "utf-8");
+		// Replace {{DOMAIN}} placeholder with actual domain
+		const domain = process.env.DOMAIN || "http://localhost:3000";
+		html = html.replace(/\{\{DOMAIN\}\}/g, domain);
 	} catch (e) {
 		// fallback to default html
 	}
