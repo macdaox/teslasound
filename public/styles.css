@@ -94,13 +94,13 @@ html, body{
 	background-repeat: no-repeat;
 	color: #fff;
 }
-.performance-section::before{
+section.performance-section::before{
 	content: '';
 	position: absolute;
 	inset: 0;
 	background: rgba(0, 0, 0, 0.45);
 }
-.performance-section .container{
+section.performance-section .container{
 	position: relative;
 	z-index: 1;
 }
