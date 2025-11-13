@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import { createDownloadToken } from "../utils/downloadToken.js";
+import { logEmail, updateSubscription } from "./supabase.js";
 
 dotenv.config();
 
@@ -29,7 +30,7 @@ const transporter = nodemailer.createTransport({
 	}
 });
 
-export async function sendWelcomeEmail(toEmail) {
+export async function sendWelcomeEmail(toEmail, subscriptionId = null) {
 	const templatePath = path.join(viewsDir, "email_template.html");
 	const attachmentPath = path.join(publicDir, "assets", "tesla_sounds.zip");
 
@@ -133,7 +134,27 @@ export async function sendWelcomeEmail(toEmail) {
 		replyTo: process.env.REPLY_TO_EMAIL || fromEmail,
 	};
 
-	return transporter.sendMail(mailOptions);
+	try {
+		const info = await transporter.sendMail(mailOptions);
+		
+		// Log successful email send
+		if (subscriptionId) {
+			await logEmail(subscriptionId, toEmail, "welcome", "sent").catch(() => {});
+			// Update subscription to mark email as sent
+			await updateSubscription(subscriptionId, {
+				email_sent: true,
+				email_sent_at: new Date().toISOString(),
+			}).catch(() => {});
+		}
+		
+		return info;
+	} catch (err) {
+		// Log failed email send
+		if (subscriptionId) {
+			await logEmail(subscriptionId, toEmail, "welcome", "failed", err.message).catch(() => {});
+		}
+		throw err;
+	}
 }
 
 

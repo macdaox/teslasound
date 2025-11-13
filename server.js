@@ -10,6 +10,7 @@ import fs from "fs";
 import subscribeRouter from "./routes/subscribe.js";
 import { sendWelcomeEmail } from "./services/mailer.js";
 import { verifyDownloadToken } from "./utils/downloadToken.js";
+import { findSubscriptionBySessionId, findSubscriptionByEmail, updateSubscription, logEmail, logDownload } from "./services/supabase.js";
 
 // Load environment variables
 dotenv.config();
@@ -92,10 +93,32 @@ app.use("/", subscribeRouter);
 
 app.get("/success", async (req, res) => {
 	const email = (req.query.email || "").toString().trim();
+	const sessionId = (req.query.session_id || "").toString().trim();
+	
 	if (email) {
+		let subscription = null;
+		
+		// Try to find and update subscription if session_id is provided
+		if (sessionId) {
+			subscription = await findSubscriptionBySessionId(sessionId);
+			if (subscription) {
+				// Update subscription status to completed
+				await updateSubscription(subscription.id, {
+					status: "completed",
+					email_sent: false, // Will be updated after email is sent
+				}).catch((err) => {
+					console.error("Failed to update subscription:", err);
+				});
+			}
+		}
+		
 		// Fire-and-forget email sending; do not block rendering
-		sendWelcomeEmail(email).catch((err) => {
+		sendWelcomeEmail(email, subscription?.id).catch((err) => {
 			console.error("Failed to send welcome email:", err);
+			// Log email failure
+			if (subscription?.id) {
+				logEmail(subscription.id, email, "welcome", "failed", err.message).catch(() => {});
+			}
 		});
 	}
 	return sendView(res, "success_en.html");
@@ -180,7 +203,7 @@ app.get("/preview/:name", (req, res) => {
 	stream.pipe(res);
 });
 
-app.get("/download/:token", (req, res) => {
+app.get("/download/:token", async (req, res) => {
 	const { token } = req.params;
 	const payload = verifyDownloadToken(token, downloadSecret);
 	if (!payload) {
@@ -191,6 +214,20 @@ app.get("/download/:token", (req, res) => {
 	const filePath = path.join(__dirname, "public", "assets", fileName);
 	if (!fs.existsSync(filePath)) {
 		return res.status(404).send("File not found");
+	}
+
+	// Log download activity (fire-and-forget)
+	const email = payload.email;
+	if (email) {
+		findSubscriptionByEmail(email)
+			.then((subscription) => {
+				if (subscription) {
+					return logDownload(subscription.id, email, token, req);
+				}
+			})
+			.catch((err) => {
+				console.error("Failed to log download:", err);
+			});
 	}
 
 	res.setHeader("Content-Type", "application/zip");
@@ -224,8 +261,14 @@ app.use((err, req, res, next) => {
 	res.status(500).send("Internal Server Error");
 });
 
-app.listen(PORT, () => {
-	console.log(`Server listening on http://localhost:${PORT}`);
-});
+// Export for Vercel serverless
+export default app;
+
+// Start server for local development
+if (process.env.VERCEL !== "1") {
+	app.listen(PORT, () => {
+		console.log(`Server listening on http://localhost:${PORT}`);
+	});
+}
 
 

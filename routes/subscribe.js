@@ -1,6 +1,7 @@
 import express from "express";
 import Stripe from "stripe";
 import dotenv from "dotenv";
+import { createSubscription } from "../services/supabase.js";
 
 dotenv.config();
 
@@ -37,9 +38,22 @@ router.post("/subscribe", async (req, res) => {
 					quantity: 1,
 				},
 			],
-			success_url: `${DOMAIN}/success?email=${encodeURIComponent(email)}`,
+			success_url: `${DOMAIN}/success?email=${encodeURIComponent(email)}&session_id={CHECKOUT_SESSION_ID}`,
 			cancel_url: `${DOMAIN}/`,
 			allow_promotion_codes: false,
+		});
+
+		// Save subscription record to Supabase
+		await createSubscription({
+			email,
+			stripeSessionId: session.id,
+			stripeCustomerId: session.customer,
+			status: "pending",
+			amountPaid: 995,
+			currency: "usd",
+		}).catch((err) => {
+			console.error("Failed to save subscription to database:", err);
+			// Don't block the redirect if database save fails
 		});
 
 		return res.redirect(303, session.url);
