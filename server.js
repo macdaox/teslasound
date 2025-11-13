@@ -178,7 +178,7 @@ app.get("/api/preview-list", (req, res) => {
 });
 
 // ---- Secure preview streaming ----
-app.get("/preview/:name", (req, res) => {
+app.get("/preview/:name", async (req, res) => {
 	const token = (req.query.token || "").toString();
 	const verify = verifyPreviewToken(token);
 	if (!verify || verify.filename !== req.params.name) {
@@ -189,8 +189,14 @@ app.get("/preview/:name", (req, res) => {
 	if (referer && !referer.startsWith(DOMAIN)) {
 		return res.status(403).send("Forbidden");
 	}
-	const filePath = path.join(secureSamplesDir, verify.filename);
-	if (!fs.existsSync(filePath)) return res.status(404).send("Not Found");
+
+	// Try to get file from R2 or local
+	const { getPreviewFile } = await import("./services/r2-storage.js");
+	const fileData = await getPreviewFile(verify.filename);
+
+	if (!fileData) {
+		return res.status(404).send("Not Found");
+	}
 
 	res.setHeader("Content-Type", "audio/mpeg");
 	res.setHeader("Content-Disposition", "inline; filename=\"preview.mp3\"");
@@ -198,9 +204,20 @@ app.get("/preview/:name", (req, res) => {
 	res.setHeader("Referrer-Policy", "no-referrer");
 	res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
 
-	const stream = fs.createReadStream(filePath);
-	stream.on("error", () => res.status(500).end());
-	stream.pipe(res);
+	// Handle stream from R2 or local file
+	if (fileData.source === "r2") {
+		// Cloudflare R2 - send buffer directly
+		res.send(fileData.buffer);
+	} else {
+		// Local file stream
+		fileData.stream.pipe(res);
+		fileData.stream.on("error", (err) => {
+			console.error("Preview stream error:", err);
+			if (!res.headersSent) {
+				res.status(500).end();
+			}
+		});
+	}
 });
 
 app.get("/download/:token", async (req, res) => {

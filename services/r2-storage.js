@@ -172,3 +172,60 @@ export async function getDownloadUrl(email, downloadSecret, downloadTtlMs) {
 	return null;
 }
 
+/**
+ * Get preview audio file from R2 or local
+ */
+export async function getPreviewFile(filename) {
+	// Try R2 Storage first
+	if (s3Client) {
+		const previewPath = `samples/${filename}`;
+		try {
+			const command = new GetObjectCommand({
+				Bucket: R2_BUCKET_NAME,
+				Key: previewPath,
+			});
+
+			const response = await s3Client.send(command);
+			
+			if (response.Body) {
+				console.log(`✅ Using preview file from R2: ${filename}`);
+				// Convert stream to buffer
+				const chunks = [];
+				for await (const chunk of response.Body) {
+					chunks.push(chunk);
+				}
+				const buffer = Buffer.concat(chunks);
+				
+				return {
+					buffer,
+					size: buffer.length,
+					source: "r2",
+				};
+			}
+		} catch (err) {
+			if (err.name !== "NoSuchKey") {
+				console.error(`Error fetching preview from R2: ${err.message}`);
+			}
+			// Fall through to local file
+		}
+	}
+
+	// Fallback to local file
+	const localPath = path.join(__dirname, "..", "secure", "samples", filename);
+	try {
+		if (fs.existsSync(localPath)) {
+			const stats = fs.statSync(localPath);
+			console.log(`✅ Using local preview file: ${filename}`);
+			return {
+				stream: fs.createReadStream(localPath),
+				size: stats.size,
+				source: "local",
+			};
+		}
+	} catch (err) {
+		console.error("Error reading local preview file:", err);
+	}
+
+	return null;
+}
+
