@@ -112,14 +112,14 @@ app.get("/success", async (req, res) => {
 			}
 		}
 		
-		// Fire-and-forget email sending; do not block rendering
-		sendWelcomeEmail(email, subscription?.id).catch((err) => {
+		try {
+			await sendWelcomeEmail(email, subscription?.id);
+		} catch (err) {
 			console.error("Failed to send welcome email:", err);
-			// Log email failure
 			if (subscription?.id) {
-				logEmail(subscription.id, email, "welcome", "failed", err.message).catch(() => {});
+				await logEmail(subscription.id, email, "welcome", "failed", err.message).catch(() => {});
 			}
-		});
+		}
 	}
 	return sendView(res, "success_en.html");
 });
