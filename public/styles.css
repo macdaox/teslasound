@@ -104,6 +104,22 @@ html, body{
 	position: relative;
 	z-index: 1;
 }
+.performance-section .btn-outline-light{
+	color: #fff;
+	border-color: rgba(255, 255, 255, 0.8);
+}
+.performance-section .btn-outline-light:hover{
+	color: #fff;
+	background: rgba(255, 255, 255, 0.15);
+	border-color: #fff;
+}
+.performance-section .btn-light{
+	color: #111;
+}
+.performance-section .btn-light:hover{
+	color: #111;
+	background: #fff;
+}
 
 .footer-muted{
 	color: var(--muted);
