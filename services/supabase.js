@@ -198,3 +198,76 @@ export async function logDownload(subscriptionId, email, downloadToken, req) {
 	}
 }
 
+/**
+ * Get file from Supabase Storage
+ */
+export async function getFileFromStorage(bucketName, filePath) {
+	if (!supabase) {
+		return null;
+	}
+
+	try {
+		const { data, error } = await supabase
+			.storage
+			.from(bucketName)
+			.download(filePath);
+
+		if (error) {
+			console.error("Error downloading file from storage:", error);
+			return null;
+		}
+
+		return data;
+	} catch (err) {
+		console.error("Exception downloading file from storage:", err);
+		return null;
+	}
+}
+
+/**
+ * Get public URL for file in Supabase Storage
+ */
+export async function getPublicUrl(bucketName, filePath, expiresIn = 3600) {
+	if (!supabase) {
+		return null;
+	}
+
+	try {
+		const { data } = supabase
+			.storage
+			.from(bucketName)
+			.getPublicUrl(filePath);
+
+		return data.publicUrl;
+	} catch (err) {
+		console.error("Exception getting public URL:", err);
+		return null;
+	}
+}
+
+/**
+ * Get signed URL for file in Supabase Storage (with expiration)
+ */
+export async function getSignedUrl(bucketName, filePath, expiresIn = 3600) {
+	if (!supabase) {
+		return null;
+	}
+
+	try {
+		const { data, error } = await supabase
+			.storage
+			.from(bucketName)
+			.createSignedUrl(filePath, expiresIn);
+
+		if (error) {
+			console.error("Error creating signed URL:", error);
+			return null;
+		}
+
+		return data.signedUrl;
+	} catch (err) {
+		console.error("Exception creating signed URL:", err);
+		return null;
+	}
+}
+

@@ -5,6 +5,7 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import { createDownloadToken } from "../utils/downloadToken.js";
 import { logEmail, updateSubscription } from "./supabase.js";
+import { getZipFileSize, getDownloadUrl } from "./r2-storage.js";
 
 dotenv.config();
 
@@ -55,46 +56,46 @@ export async function sendWelcomeEmail(toEmail, subscriptionId = null) {
 	let attachments = [];
 	let downloadLink = null;
 	
-	try {
-		const stats = await fs.stat(attachmentPath);
-		if (stats.size > 1024 && stats.size <= MAX_ATTACHMENT_SIZE) {
-			attachments.push({
-				filename: "tesla_sounds.zip",
-				path: attachmentPath,
-				contentType: "application/zip"
-			});
-		} else if (stats.size > MAX_ATTACHMENT_SIZE) {
-			console.warn(`Attachment file too large (${(stats.size / 1024 / 1024).toFixed(2)}MB), using download link instead`);
-			if (manualDownloadUrl) {
-				downloadLink = manualDownloadUrl;
-			} else if (downloadSecret) {
-				try {
-					const token = createDownloadToken(
-						{ email: toEmail, filename: "tesla_sounds.zip" },
-						downloadSecret,
-						downloadTtlMs
-					);
-					downloadLink = `${domain}/download/${token}`;
-				} catch (err) {
-					console.error("Failed to generate download token:", err);
+	// Try to get file size from storage or local file
+	const fileSize = await getZipFileSize();
+	
+	if (fileSize) {
+		if (fileSize > 1024 && fileSize <= MAX_ATTACHMENT_SIZE) {
+			// File is small enough to attach - try local file first
+			try {
+				const stats = await fs.stat(attachmentPath);
+				if (stats.size > 1024 && stats.size <= MAX_ATTACHMENT_SIZE) {
+					attachments.push({
+						filename: "tesla_sounds.zip",
+						path: attachmentPath,
+						contentType: "application/zip"
+					});
 				}
+			} catch (e) {
+				// Local file not available, will use download link
 			}
 		}
-	} catch (e) {
-		console.warn("Attachment file not found or invalid, sending email without attachment");
+		
+		// If file is too large or not attached, use download link
+		if (attachments.length === 0) {
+			if (fileSize > MAX_ATTACHMENT_SIZE) {
+				console.warn(`Attachment file too large (${(fileSize / 1024 / 1024).toFixed(2)}MB), using download link instead`);
+			}
+			
+			// Try to get download URL from storage or generate token
+			if (manualDownloadUrl) {
+				downloadLink = manualDownloadUrl;
+			} else {
+				downloadLink = await getDownloadUrl(toEmail, downloadSecret, downloadTtlMs);
+			}
+		}
+	} else {
+		console.warn("ZIP file not found in storage or local, sending email without attachment");
 	}
 	
+	// Force download link if configured
 	if (!downloadLink && process.env.FORCE_DOWNLOAD_LINK === "true" && downloadSecret) {
-		try {
-			const token = createDownloadToken(
-				{ email: toEmail, filename: "tesla_sounds.zip" },
-				downloadSecret,
-				downloadTtlMs
-			);
-			downloadLink = `${domain}/download/${token}`;
-		} catch (err) {
-			console.error("Failed to generate forced download token:", err);
-		}
+		downloadLink = await getDownloadUrl(toEmail, downloadSecret, downloadTtlMs);
 	}
 	
 	// If using download link, update HTML to include it

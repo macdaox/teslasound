@@ -211,10 +211,6 @@ app.get("/download/:token", async (req, res) => {
 	}
 
 	const fileName = (payload.filename || "tesla_sounds.zip").replace(/(\.\.\/|\/)/g, "");
-	const filePath = path.join(__dirname, "public", "assets", fileName);
-	if (!fs.existsSync(filePath)) {
-		return res.status(404).send("File not found");
-	}
 
 	// Log download activity (fire-and-forget)
 	const email = payload.email;
@@ -230,17 +226,32 @@ app.get("/download/:token", async (req, res) => {
 			});
 	}
 
+	// Try to get file from storage or local
+	const { getZipFile } = await import("./services/r2-storage.js");
+	const fileData = await getZipFile();
+
+	if (!fileData) {
+		return res.status(404).send("File not found");
+	}
+
 	res.setHeader("Content-Type", "application/zip");
 	res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
 	res.setHeader("Cache-Control", "no-store, max-age=0");
-	res.download(filePath, fileName, (err) => {
-		if (err) {
-			console.error("Download failed:", err);
+
+	// Handle stream from storage or local file
+	if (fileData.source === "r2") {
+		// Cloudflare R2 - send buffer directly
+		res.send(fileData.buffer);
+	} else {
+		// Local file stream
+		fileData.stream.pipe(res);
+		fileData.stream.on("error", (err) => {
+			console.error("Download stream error:", err);
 			if (!res.headersSent) {
 				res.status(500).send("Download failed");
 			}
-		}
-	});
+		});
+	}
 });
 
 app.all("/unsubscribe", (req, res) => {
