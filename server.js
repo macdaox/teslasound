@@ -9,6 +9,7 @@ import crypto from "crypto";
 import fs from "fs";
 import subscribeRouter from "./routes/subscribe.js";
 import { sendWelcomeEmail } from "./services/mailer.js";
+import { verifyDownloadToken } from "./utils/downloadToken.js";
 
 // Load environment variables
 dotenv.config();
@@ -43,6 +44,7 @@ const sendView = (res, filename) => {
 const PREVIEW_SECRET = process.env.PREVIEW_SECRET || "dev_preview_secret";
 const DOMAIN = process.env.DOMAIN || `http://localhost:${PORT}`;
 const secureSamplesDir = path.join(__dirname, "secure", "samples");
+const downloadSecret = process.env.DOWNLOAD_SECRET || process.env.PREVIEW_SECRET || "dev_download_secret";
 
 const SAMPLE_FILES = [
 	{ filename: "labubu1.mp3", labelEn: "Labubu Chirp", labelZh: "Labubu 锁车音 · 版本 1" },
@@ -176,6 +178,38 @@ app.get("/preview/:name", (req, res) => {
 	const stream = fs.createReadStream(filePath);
 	stream.on("error", () => res.status(500).end());
 	stream.pipe(res);
+});
+
+app.get("/download/:token", (req, res) => {
+	const { token } = req.params;
+	const payload = verifyDownloadToken(token, downloadSecret);
+	if (!payload) {
+		return res.status(403).send("Download link expired or invalid");
+	}
+
+	const fileName = (payload.filename || "tesla_sounds.zip").replace(/(\.\.\/|\/)/g, "");
+	const filePath = path.join(__dirname, "public", "assets", fileName);
+	if (!fs.existsSync(filePath)) {
+		return res.status(404).send("File not found");
+	}
+
+	res.setHeader("Content-Type", "application/zip");
+	res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+	res.setHeader("Cache-Control", "no-store, max-age=0");
+	res.download(filePath, fileName, (err) => {
+		if (err) {
+			console.error("Download failed:", err);
+			if (!res.headersSent) {
+				res.status(500).send("Download failed");
+			}
+		}
+	});
+});
+
+app.all("/unsubscribe", (req, res) => {
+	const email = (req.query.email || "").toString();
+	console.log("Unsubscribe request received for:", email);
+	res.status(200).send("You have been unsubscribed from Tesla Sounds notifications. If this was a mistake, please contact support.");
 });
 
 // Fallback 404
