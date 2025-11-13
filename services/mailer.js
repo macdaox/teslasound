@@ -34,12 +34,13 @@ const transporter = nodemailer.createTransport({
 export async function sendWelcomeEmail(toEmail, subscriptionId = null) {
 	const templatePath = path.join(viewsDir, "email_template.html");
 
+	const resolvedDomain = (process.env.DOMAIN || "http://localhost:3000").replace(/\/$/, "");
+
 	let html = "<p>Thanks for your purchase!</p>";
 	try {
 		html = await fs.readFile(templatePath, "utf-8");
 		// Replace {{DOMAIN}} placeholder with actual domain
-		const domain = process.env.DOMAIN || "http://localhost:3000";
-		html = html.replace(/\{\{DOMAIN\}\}/g, domain);
+		html = html.replace(/\{\{DOMAIN\}\}/g, resolvedDomain);
 	} catch (e) {
 		// fallback to default html
 	}
@@ -93,7 +94,7 @@ export async function sendWelcomeEmail(toEmail, subscriptionId = null) {
 			// Add headers to reduce spam score
 			'X-Mailer': 'Tesla Sounds',
 			'X-Priority': '1', // High priority
-			'List-Unsubscribe': `<${domain}/unsubscribe?email=${encodeURIComponent(toEmail)}>`,
+			'List-Unsubscribe': `<${resolvedDomain}/unsubscribe?email=${encodeURIComponent(toEmail)}>`,
 			'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
 			'Precedence': 'bulk', // Transactional email
 		},
