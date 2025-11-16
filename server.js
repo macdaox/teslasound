@@ -28,12 +28,21 @@ app.use(helmet({
 app.use(compression());
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
+// Static assets - should be before body parsers for better performance
+app.use("/public", express.static(path.join(__dirname, "public"), {
+	maxAge: "7d",
+	etag: true,
+	setHeaders: (res, filePath) => {
+		// Ensure CSS files have correct Content-Type
+		if (filePath.endsWith(".css")) {
+			res.setHeader("Content-Type", "text/css; charset=utf-8");
+		}
+	}
+}));
+
 // Body parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// Static assets
-app.use("/public", express.static(path.join(__dirname, "public"), { maxAge: "7d", etag: true }));
 
 // Views helper
 const viewsPath = path.join(__dirname, "views");
