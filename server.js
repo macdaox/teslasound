@@ -133,11 +133,15 @@ app.get("/install-guide", (req, res) => {
 });
 
 app.get("/privacy", (req, res) => {
-	return sendView(res, "privacy_en.html");
+  return sendView(res, "privacy_en.html");
 });
 
 app.get("/refund-policy", (req, res) => {
-	return sendView(res, "refund-policy_en.html");
+  return sendView(res, "refund-policy_en.html");
+});
+
+app.get("/contact", (req, res) => {
+  return sendView(res, "contact_en.html");
 });
 
 // Explicit language routes
@@ -147,6 +151,7 @@ app.get("/en/sounds", (req, res) => sendView(res, "sounds_en.html"));
 app.get("/en/install-guide", (req, res) => sendView(res, "install-guide_en.html"));
 app.get("/en/privacy", (req, res) => sendView(res, "privacy_en.html"));
 app.get("/en/refund-policy", (req, res) => sendView(res, "refund-policy_en.html"));
+app.get("/en/contact", (req, res) => sendView(res, "contact_en.html"));
 
 app.get("/zh", (req, res) => sendView(res, "index.html"));
 app.get("/zh/success", (req, res) => sendView(res, "success.html"));
